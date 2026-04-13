@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .status {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status.idle { background: #16213e; color: #a0a0b8; }
+    .status.active { background: #0a3d2e; color: #4ade80; }
+    .status.error { background: #3d0a0a; color: #f87171; }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot.idle { background: #a0a0b8; }
+    .dot.active { background: #4ade80; animation: pulse 1.5s infinite; }
+    .dot.error { background: #f87171; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button.start {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      color: #fff;
+    }
+    button.start:hover { opacity: 0.9; }
+    button.stop {
+      background: #dc2626;
+      color: #fff;
+    }
+    button.stop:hover { background: #b91c1c; }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .hint {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img class="logo" src="icons/logo.png" alt="MeetMind">
+    <h1>MeetMind</h1>
+  </div>
+
+  <div class="status idle" id="status">
+    <div class="dot idle" id="dot"></div>
+    <span id="statusText">Ready to listen</span>
+  </div>
+
+  <button class="start" id="btn">Start Listening</button>
+
+  <div class="hint">Make sure the backend server is running on port 7777</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
