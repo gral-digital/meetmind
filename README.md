@@ -26,7 +26,7 @@ Real-time AI meeting copilot for Google Meet. Captures audio, transcribes with D
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/[user]/meetmind
+git clone https://github.com/gral-digital/meetmind
 cd meetmind
 cp .env.example .env
 # Edit .env and add your API keys
