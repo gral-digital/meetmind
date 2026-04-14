@@ -1,4 +1,5 @@
 let mediaStream = null;
+let micStream = null;
 let audioContext = null;
 let processor = null;
 let ws = null;
@@ -30,6 +31,20 @@ async function startCapture(streamId) {
     });
     console.log("[Offscreen] Got media stream, tracks:", mediaStream.getAudioTracks().length);
 
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      console.log("[Offscreen] Got mic stream, tracks:", micStream.getAudioTracks().length);
+    } catch (err) {
+      console.warn("[Offscreen] Mic capture failed, continuing with tab audio only:", err);
+      micStream = null;
+    }
+
     // Connect WebSocket to backend
     ws = new WebSocket(WS_URL);
 
@@ -52,7 +67,8 @@ async function startCapture(streamId) {
 
 function startAudioProcessing() {
   audioContext = new AudioContext({ sampleRate: 16000 });
-  const source = audioContext.createMediaStreamSource(mediaStream);
+  const tabSource = audioContext.createMediaStreamSource(mediaStream);
+  const micSource = micStream ? audioContext.createMediaStreamSource(micStream) : null;
 
   processor = audioContext.createScriptProcessor(4096, 1, 1);
 
@@ -69,12 +85,16 @@ function startAudioProcessing() {
     }
   };
 
-  source.connect(processor);
+  // Both sources feed the processor — multiple connections to the same input
+  // are summed by the Web Audio graph, so the backend gets a mic + tab mix.
+  tabSource.connect(processor);
+  if (micSource) micSource.connect(processor);
   processor.connect(audioContext.destination);
 
-  // Tab capture mutes the original tab playback, so route the stream to the
-  // speakers ourselves — otherwise the user can't hear other participants.
-  source.connect(audioContext.destination);
+  // Tab capture mutes the original tab playback, so route the tab stream to
+  // the speakers ourselves — otherwise the user can't hear other participants.
+  // Mic is intentionally NOT routed to destination to avoid feedback.
+  tabSource.connect(audioContext.destination);
 
   console.log("[Offscreen] Audio processing started");
 }
@@ -91,6 +111,10 @@ function stopCapture() {
   if (mediaStream) {
     mediaStream.getTracks().forEach((track) => track.stop());
     mediaStream = null;
+  }
+  if (micStream) {
+    micStream.getTracks().forEach((track) => track.stop());
+    micStream = null;
   }
   if (ws) {
     ws.close();
