@@ -72,6 +72,10 @@ function startAudioProcessing() {
   source.connect(processor);
   processor.connect(audioContext.destination);
 
+  // Tab capture mutes the original tab playback, so route the stream to the
+  // speakers ourselves — otherwise the user can't hear other participants.
+  source.connect(audioContext.destination);
+
   console.log("[Offscreen] Audio processing started");
 }
 
